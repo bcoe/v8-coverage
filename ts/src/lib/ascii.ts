@@ -94,7 +94,7 @@ function emitTreeLayer(layer: ReadonlyRangeTree[], colMap: Map<number, number>):
 
 function parseTreeLayer(text: string, offsetMap: Map<number, number>): RangeCov[] {
   const result: RangeCov[] = [];
-  const regex: RegExp = /\[(\d+)-*\)/gs;
+  const regex: RegExp = /\[(\d+)-*\)/g;
   while (true) {
     const match: RegExpMatchArray | null = regex.exec(text);
     if (match === null) {

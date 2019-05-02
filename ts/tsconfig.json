@@ -20,7 +20,7 @@
     "inlineSources": false,
     "isolatedModules": false,
     "lib": [
-      "es2015",
+      "es2016",
       "esnext.asynciterable"
     ],
     "locale": "en-us",
@@ -49,7 +49,7 @@
     "strictNullChecks": true,
     "suppressExcessPropertyErrors": false,
     "suppressImplicitAnyIndexErrors": false,
-    "target": "es2017",
+    "target": "es2016",
     "traceResolution": false,
     "typeRoots": [
       "src/lib/custom-typings",
