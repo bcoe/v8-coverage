@@ -20,7 +20,7 @@
     "inlineSources": false,
     "isolatedModules": false,
     "lib": [
-      "es2017",
+      "es2015",
       "esnext.asynciterable"
     ],
     "locale": "en-us",
