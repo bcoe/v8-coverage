@@ -134,7 +134,7 @@ function emitOffsets(colMap: Map<number, number>): string {
 
 export function parseOffsets(text: string): Map<number, number> {
   const result: Map<number, number> = new Map();
-  const regex: RegExp = /\d+/gs;
+  const regex: RegExp = /\d+/g;
   while (true) {
     const match: RegExpExecArray | null = regex.exec(text);
     if (match === null) {
