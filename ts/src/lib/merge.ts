@@ -1,5 +1,4 @@
 import {
-  deepNormalizeProcessCov,
   deepNormalizeScriptCov,
   normalizeFunctionCov,
   normalizeProcessCov,
@@ -23,10 +22,6 @@ import { FunctionCov, ProcessCov, Range, RangeCov, ScriptCov } from "./types";
 export function mergeProcessCovs(processCovs: ReadonlyArray<ProcessCov>): ProcessCov {
   if (processCovs.length === 0) {
     return {result: []};
-  } else if (processCovs.length === 1) {
-    const merged: ProcessCov = processCovs[0];
-    deepNormalizeProcessCov(merged);
-    return merged;
   }
 
   const urlToScripts: Map<string, ScriptCov[]> = new Map();

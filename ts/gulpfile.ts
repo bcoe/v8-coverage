@@ -21,12 +21,7 @@ const project: buildTools.Project = {
   buildDir: "build",
   distDir: "dist",
   srcDir: "src",
-  typescript: {
-    compilerOptions: {
-      allowSyntheticDefaultImports: true,
-      esModuleInterop: true,
-    },
-  },
+  typescript: {}
 };
 
 const lib: LibTarget = {
