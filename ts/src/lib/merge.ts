@@ -1,5 +1,4 @@
 import {
-  deepNormalizeProcessCov,
   deepNormalizeScriptCov,
   normalizeFunctionCov,
   normalizeProcessCov,
