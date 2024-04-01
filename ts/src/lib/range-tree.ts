@@ -42,6 +42,10 @@ export class RangeTree {
         } else {
           stack.pop();
         }
+
+        if(stack.length === 0) {
+          break;
+        }
       }
       node.delta -= parentCount;
       parent.children.push(node);
