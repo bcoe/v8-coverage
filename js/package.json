@@ -4,7 +4,7 @@
   "description": "Helper functions for V8 coverage files.",
   "author": "Charles Samborski <demurgos@demurgos.net> (https://demurgos.net)",
   "license": "MIT",
-  "main": "./lib/src/index.js",
+  "main": "./src/lib/index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/demurgos/v8-coverage.git"
