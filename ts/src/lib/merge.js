@@ -1,12 +1,11 @@
-import {
+const {
   deepNormalizeScriptCov,
   normalizeFunctionCov,
   normalizeProcessCov,
   normalizeRangeTree,
   normalizeScriptCov,
-} from "./normalize";
-import { RangeTree } from "./range-tree";
-import { FunctionCov, ProcessCov, Range, RangeCov, ScriptCov } from "./types";
+} = require('./normalize');
+const { RangeTree } = require('./range-tree');
 
 /**
  * Merges a list of process coverages.
@@ -19,15 +18,15 @@ import { FunctionCov, ProcessCov, Range, RangeCov, ScriptCov } from "./types";
  * @param processCovs Process coverages to merge.
  * @return Merged process coverage.
  */
-export function mergeProcessCovs(processCovs: ReadonlyArray<ProcessCov>): ProcessCov {
+function mergeProcessCovs(processCovs) {
   if (processCovs.length === 0) {
     return {result: []};
   }
 
-  const urlToScripts: Map<string, ScriptCov[]> = new Map();
+  const urlToScripts = new Map();
   for (const processCov of processCovs) {
     for (const scriptCov of processCov.result) {
-      let scriptCovs: ScriptCov[] | undefined = urlToScripts.get(scriptCov.url);
+      let scriptCovs= urlToScripts.get(scriptCov.url);
       if (scriptCovs === undefined) {
         scriptCovs = [];
         urlToScripts.set(scriptCov.url, scriptCovs);
@@ -36,12 +35,12 @@ export function mergeProcessCovs(processCovs: ReadonlyArray<ProcessCov>): Proces
     }
   }
 
-  const result: ScriptCov[] = [];
+  const result = [];
   for (const scripts of urlToScripts.values()) {
     // assert: `scripts.length > 0`
-    result.push(mergeScriptCovs(scripts)!);
+    result.push(mergeScriptCovs(scripts));
   }
-  const merged: ProcessCov = {result};
+  const merged = {result};
 
   normalizeProcessCov(merged);
   return merged;
@@ -59,24 +58,24 @@ export function mergeProcessCovs(processCovs: ReadonlyArray<ProcessCov>): Proces
  * @param scriptCovs Process coverages to merge.
  * @return Merged script coverage, or `undefined` if the input list was empty.
  */
-export function mergeScriptCovs(scriptCovs: ReadonlyArray<ScriptCov>): ScriptCov | undefined {
+function mergeScriptCovs(scriptCovs) {
   if (scriptCovs.length === 0) {
     return undefined;
   } else if (scriptCovs.length === 1) {
-    const merged: ScriptCov = scriptCovs[0];
+    const merged = scriptCovs[0];
     deepNormalizeScriptCov(merged);
     return merged;
   }
 
-  const first: ScriptCov = scriptCovs[0];
-  const scriptId: string = first.scriptId;
-  const url: string = first.url;
+  const first = scriptCovs[0];
+  const scriptId = first.scriptId;
+  const url = first.url;
 
-  const rangeToFuncs: Map<string, FunctionCov[]> = new Map();
+  const rangeToFuncs = new Map();
   for (const scriptCov of scriptCovs) {
     for (const funcCov of scriptCov.functions) {
-      const rootRange: string = stringifyFunctionRootRange(funcCov);
-      let funcCovs: FunctionCov[] | undefined = rangeToFuncs.get(rootRange);
+      const rootRange = stringifyFunctionRootRange(funcCov);
+      let funcCovs = rangeToFuncs.get(rootRange);
 
       if (funcCovs === undefined ||
         // if the entry in rangeToFuncs is function-level granularity and
@@ -93,13 +92,13 @@ export function mergeScriptCovs(scriptCovs: ReadonlyArray<ScriptCov>): ScriptCov
     }
   }
 
-  const functions: FunctionCov[] = [];
+  const functions  = [];
   for (const funcCovs of rangeToFuncs.values()) {
     // assert: `funcCovs.length > 0`
-    functions.push(mergeFunctionCovs(funcCovs)!);
+    functions.push(mergeFunctionCovs(funcCovs));
   }
 
-  const merged: ScriptCov = {scriptId, url, functions};
+  const merged = {scriptId, url, functions};
   normalizeScriptCov(merged);
   return merged;
 }
@@ -115,8 +114,8 @@ export function mergeScriptCovs(scriptCovs: ReadonlyArray<ScriptCov>): ScriptCov
  * @param funcCov Function coverage with the range to stringify
  * @internal
  */
-function stringifyFunctionRootRange(funcCov: Readonly<FunctionCov>): string {
-  const rootRange: RangeCov = funcCov.ranges[0];
+function stringifyFunctionRootRange(funcCov) {
+  const rootRange = funcCov.ranges[0];
   return `${rootRange.startOffset.toString(10)};${rootRange.endOffset.toString(10)}`;
 }
 
@@ -132,31 +131,31 @@ function stringifyFunctionRootRange(funcCov: Readonly<FunctionCov>): string {
  * @param funcCovs Function coverages to merge.
  * @return Merged function coverage, or `undefined` if the input list was empty.
  */
-export function mergeFunctionCovs(funcCovs: ReadonlyArray<FunctionCov>): FunctionCov | undefined {
+function mergeFunctionCovs(funcCovs) {
   if (funcCovs.length === 0) {
     return undefined;
   } else if (funcCovs.length === 1) {
-    const merged: FunctionCov = funcCovs[0];
+    const merged = funcCovs[0];
     normalizeFunctionCov(merged);
     return merged;
   }
 
-  const functionName: string = funcCovs[0].functionName;
+  const functionName = funcCovs[0].functionName;
 
-  const trees: RangeTree[] = [];
+  const trees = [];
   for (const funcCov of funcCovs) {
     // assert: `fn.ranges.length > 0`
     // assert: `fn.ranges` is sorted
-    trees.push(RangeTree.fromSortedRanges(funcCov.ranges)!);
+    trees.push(RangeTree.fromSortedRanges(funcCov.ranges));
   }
 
   // assert: `trees.length > 0`
-  const mergedTree: RangeTree = mergeRangeTrees(trees)!;
+  const mergedTree = mergeRangeTrees(trees);
   normalizeRangeTree(mergedTree);
-  const ranges: RangeCov[] = mergedTree.toRanges();
-  const isBlockCoverage: boolean = !(ranges.length === 1 && ranges[0].count === 0);
+  const ranges = mergedTree.toRanges();
+  const isBlockCoverage = !(ranges.length === 1 && ranges[0].count === 0);
 
-  const merged: FunctionCov = {functionName, ranges, isBlockCoverage};
+  const merged = {functionName, ranges, isBlockCoverage};
   // assert: `merged` is normalized
   return merged;
 }
@@ -164,61 +163,61 @@ export function mergeFunctionCovs(funcCovs: ReadonlyArray<FunctionCov>): Functio
 /**
  * @precondition Same `start` and `end` for all the trees
  */
-function mergeRangeTrees(trees: ReadonlyArray<RangeTree>): RangeTree | undefined {
+function mergeRangeTrees(trees) {
   if (trees.length <= 1) {
     return trees[0];
   }
-  const first: RangeTree = trees[0];
-  let delta: number = 0;
+  const first = trees[0];
+  let delta = 0;
   for (const tree of trees) {
     delta += tree.delta;
   }
-  const children: RangeTree[] = mergeRangeTreeChildren(trees);
+  const children = mergeRangeTreeChildren(trees);
   return new RangeTree(first.start, first.end, delta, children);
 }
 
 class RangeTreeWithParent {
-  readonly parentIndex: number;
-  readonly tree: RangeTree;
+  parentIndex;
+  tree;
 
-  constructor(parentIndex: number, tree: RangeTree) {
+  constructor(parentIndex, tree) {
     this.parentIndex = parentIndex;
     this.tree = tree;
   }
 }
 
 class StartEvent {
-  readonly offset: number;
-  readonly trees: RangeTreeWithParent[];
+  offset;
+  trees;
 
-  constructor(offset: number, trees: RangeTreeWithParent[]) {
+  constructor(offset, trees) {
     this.offset = offset;
     this.trees = trees;
   }
 
-  static compare(a: StartEvent, b: StartEvent): number {
+  static compare(a, b) {
     return a.offset - b.offset;
   }
 }
 
 class StartEventQueue {
-  private readonly queue: StartEvent[];
-  private nextIndex: number;
-  private pendingOffset: number;
-  private pendingTrees: RangeTreeWithParent[] | undefined;
+  queue;
+  nextIndex;
+  pendingOffset;
+  pendingTrees;
 
-  private constructor(queue: StartEvent[]) {
+  constructor(queue) {
     this.queue = queue;
     this.nextIndex = 0;
     this.pendingOffset = 0;
     this.pendingTrees = undefined;
   }
 
-  static fromParentTrees(parentTrees: ReadonlyArray<RangeTree>): StartEventQueue {
-    const startToTrees: Map<number, RangeTreeWithParent[]> = new Map();
+  static fromParentTrees(parentTrees) {
+    const startToTrees = new Map();
     for (const [parentIndex, parentTree] of parentTrees.entries()) {
       for (const child of parentTree.children) {
-        let trees: RangeTreeWithParent[] | undefined = startToTrees.get(child.start);
+        let trees = startToTrees.get(child.start);
         if (trees === undefined) {
           trees = [];
           startToTrees.set(child.start, trees);
@@ -226,7 +225,7 @@ class StartEventQueue {
         trees.push(new RangeTreeWithParent(parentIndex, child));
       }
     }
-    const queue: StartEvent[] = [];
+    const queue = [];
     for (const [startOffset, trees] of startToTrees) {
       queue.push(new StartEvent(startOffset, trees));
     }
@@ -234,20 +233,20 @@ class StartEventQueue {
     return new StartEventQueue(queue);
   }
 
-  setPendingOffset(offset: number): void {
+  setPendingOffset(offset) {
     this.pendingOffset = offset;
   }
 
-  pushPendingTree(tree: RangeTreeWithParent): void {
+  pushPendingTree(tree) {
     if (this.pendingTrees === undefined) {
       this.pendingTrees = [];
     }
     this.pendingTrees.push(tree);
   }
 
-  next(): StartEvent | undefined {
-    const pendingTrees: RangeTreeWithParent[] | undefined = this.pendingTrees;
-    const nextEvent: StartEvent | undefined = this.queue[this.nextIndex];
+  next() {
+    const pendingTrees = this.pendingTrees;
+    const nextEvent = this.queue[this.nextIndex];
     if (pendingTrees === undefined) {
       this.nextIndex++;
       return nextEvent;
@@ -272,14 +271,14 @@ class StartEventQueue {
   }
 }
 
-function mergeRangeTreeChildren(parentTrees: ReadonlyArray<RangeTree>): RangeTree[] {
-  const result: RangeTree[] = [];
-  const startEventQueue: StartEventQueue = StartEventQueue.fromParentTrees(parentTrees);
-  const parentToNested: Map<number, RangeTree[]> = new Map();
-  let openRange: Range | undefined;
+function mergeRangeTreeChildren(parentTrees) {
+  const result = [];
+  const startEventQueue = StartEventQueue.fromParentTrees(parentTrees);
+  const parentToNested = new Map();
+  let openRange;
 
   while (true) {
-    const event: StartEvent | undefined = startEventQueue.next();
+    const event = startEventQueue.next();
     if (event === undefined) {
       break;
     }
@@ -290,7 +289,7 @@ function mergeRangeTreeChildren(parentTrees: ReadonlyArray<RangeTree>): RangeTre
     }
 
     if (openRange === undefined) {
-      let openRangeEnd: number = event.offset + 1;
+      let openRangeEnd = event.offset + 1;
       for (const {parentIndex, tree} of event.trees) {
         openRangeEnd = Math.max(openRangeEnd, tree.end);
         insertChild(parentToNested, parentIndex, tree);
@@ -300,7 +299,7 @@ function mergeRangeTreeChildren(parentTrees: ReadonlyArray<RangeTree>): RangeTre
     } else {
       for (const {parentIndex, tree} of event.trees) {
         if (tree.end > openRange.end) {
-          const right: RangeTree = tree.split(openRange.end);
+          const right = tree.split(openRange.end);
           startEventQueue.pushPendingTree(new RangeTreeWithParent(parentIndex, right));
         }
         insertChild(parentToNested, parentIndex, tree);
@@ -314,8 +313,8 @@ function mergeRangeTreeChildren(parentTrees: ReadonlyArray<RangeTree>): RangeTre
   return result;
 }
 
-function insertChild(parentToNested: Map<number, RangeTree[]>, parentIndex: number, tree: RangeTree): void {
-  let nested: RangeTree[] | undefined = parentToNested.get(parentIndex);
+function insertChild(parentToNested, parentIndex, tree) {
+  let nested = parentToNested.get(parentIndex);
   if (nested === undefined) {
     nested = [];
     parentToNested.set(parentIndex, nested);
@@ -323,8 +322,8 @@ function insertChild(parentToNested: Map<number, RangeTree[]>, parentIndex: numb
   nested.push(tree);
 }
 
-function nextChild(openRange: Range, parentToNested: Map<number, RangeTree[]>): RangeTree {
-  const matchingTrees: RangeTree[] = [];
+function nextChild(openRange, parentToNested) {
+  const matchingTrees = [];
 
   for (const nested of parentToNested.values()) {
     if (nested.length === 1 && nested[0].start === openRange.start && nested[0].end === openRange.end) {
@@ -339,5 +338,11 @@ function nextChild(openRange: Range, parentToNested: Map<number, RangeTree[]>): 
     }
   }
   parentToNested.clear();
-  return mergeRangeTrees(matchingTrees)!;
+  return mergeRangeTrees(matchingTrees);
+}
+
+module.exports = {
+  mergeProcessCovs,
+  mergeScriptCovs,
+  mergeFunctionCovs
 }

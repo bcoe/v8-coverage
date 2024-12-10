@@ -1,24 +1,17 @@
-import chai from "chai";
-import fs from "fs";
-import path from "path";
-import { FunctionCov, mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs, ProcessCov, ScriptCov } from "../lib";
+const chai = require("chai");
+const fs = require("fs");
+const path = require("path");
+const { FunctionCov, mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs, ProcessCov, ScriptCov } = require("../lib");
 
-const REPO_ROOT: string = path.join(__dirname, "..", "..", "..", "..");
-const BENCHES_INPUT_DIR: string = path.join(REPO_ROOT, "benches");
-const BENCHES_DIR: string = path.join(REPO_ROOT, "test-data", "merge", "benches");
-const RANGES_DIR: string = path.join(REPO_ROOT, "test-data", "merge", "ranges");
-const BENCHES_TIMEOUT: number = 20000; // 20sec
+const REPO_ROOT = path.join(__dirname, "..", "..", "..");
+const BENCHES_INPUT_DIR = path.join(REPO_ROOT, "benches");
+const BENCHES_DIR = path.join(REPO_ROOT, "test-data", "merge", "benches");
+const RANGES_DIR = path.join(REPO_ROOT, "test-data", "merge", "ranges");
+const BENCHES_TIMEOUT = 20000; // 20sec
 
-interface MergeRangeItem {
-  name: string;
-  status: "run" | "skip" | "only";
-  inputs: ProcessCov[];
-  expected: ProcessCov;
-}
-
-const FIXTURES_DIR: string = path.join(REPO_ROOT, "test-data", "bugs");
-function loadFixture(name: string) {
-  const content: string = fs.readFileSync(
+const FIXTURES_DIR = path.join(REPO_ROOT, "test-data", "bugs");
+function loadFixture(name) {
+  const content = fs.readFileSync(
     path.resolve(FIXTURES_DIR, `${name}.json`),
     {encoding: "UTF-8"},
   );
@@ -28,28 +21,28 @@ function loadFixture(name: string) {
 describe("merge", () => {
   describe("Various", () => {
     it("accepts empty arrays for `mergeProcessCovs`", () => {
-      const inputs: ProcessCov[] = [];
-      const expected: ProcessCov = {result: []};
-      const actual: ProcessCov = mergeProcessCovs(inputs);
+      const inputs = [];
+      const expected = {result: []};
+      const actual = mergeProcessCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
 
     it("accepts empty arrays for `mergeScriptCovs`", () => {
-      const inputs: ScriptCov[] = [];
-      const expected: ScriptCov | undefined = undefined;
-      const actual: ScriptCov | undefined = mergeScriptCovs(inputs);
+      const inputs = [];
+      const expected = undefined;
+      const actual = mergeScriptCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
 
     it("accepts empty arrays for `mergeFunctionCovs`", () => {
-      const inputs: FunctionCov[] = [];
-      const expected: FunctionCov | undefined = undefined;
-      const actual: FunctionCov | undefined = mergeFunctionCovs(inputs);
+      const inputs  = [];
+      const expected = undefined;
+      const actual  = mergeFunctionCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
 
     it("accepts arrays with a single item for `mergeProcessCovs`", () => {
-      const inputs: ProcessCov[] = [
+      const inputs = [
         {
           result: [
             {
@@ -70,7 +63,7 @@ describe("merge", () => {
           ],
         },
       ];
-      const expected: ProcessCov = {
+      const expected = {
         result: [
           {
             scriptId: "0",
@@ -88,40 +81,40 @@ describe("merge", () => {
           },
         ],
       };
-      const actual: ProcessCov = mergeProcessCovs(inputs);
+      const actual = mergeProcessCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
 
     describe("mergeProcessCovs", () => {
       // see: https://github.com/demurgos/v8-coverage/issues/2
       it("handles function coverage merged into block coverage", () => {
-        const blockCoverage: ProcessCov = loadFixture("issue-2-block-coverage");
-        const functionCoverage: ProcessCov = loadFixture("issue-2-func-coverage");
-        const inputs: ProcessCov[] = [
+        const blockCoverage = loadFixture("issue-2-block-coverage");
+        const functionCoverage  = loadFixture("issue-2-func-coverage");
+        const inputs = [
           functionCoverage,
           blockCoverage,
         ];
-        const expected: ProcessCov = loadFixture("issue-2-expected");
-        const actual: ProcessCov = mergeProcessCovs(inputs);
+        const expected = loadFixture("issue-2-expected");
+        const actual = mergeProcessCovs(inputs);
         chai.assert.deepEqual(actual, expected);
       });
 
       // see: https://github.com/demurgos/v8-coverage/issues/2
       it("handles block coverage merged into function coverage", () => {
-        const blockCoverage: ProcessCov = loadFixture("issue-2-block-coverage");
-        const functionCoverage: ProcessCov = loadFixture("issue-2-func-coverage");
-        const inputs: ProcessCov[] = [
+        const blockCoverage = loadFixture("issue-2-block-coverage");
+        const functionCoverage = loadFixture("issue-2-func-coverage");
+        const inputs = [
           blockCoverage,
           functionCoverage,
         ];
-        const expected: ProcessCov = loadFixture("issue-2-expected");
-        const actual: ProcessCov = mergeProcessCovs(inputs);
+        const expected = loadFixture("issue-2-expected");
+        const actual = mergeProcessCovs(inputs);
         chai.assert.deepEqual(actual, expected);
       });
     });
 
     it("accepts arrays with a single item for `mergeScriptCovs`", () => {
-      const inputs: ScriptCov[] = [
+      const inputs = [
         {
           scriptId: "123",
           url: "/lib.js",
@@ -138,7 +131,7 @@ describe("merge", () => {
           ],
         },
       ];
-      const expected: ScriptCov | undefined = {
+      const expected = {
         scriptId: "123",
         url: "/lib.js",
         functions: [
@@ -152,12 +145,12 @@ describe("merge", () => {
           },
         ],
       };
-      const actual: ScriptCov | undefined = mergeScriptCovs(inputs);
+      const actual = mergeScriptCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
 
     it("accepts arrays with a single item for `mergeFunctionCovs`", () => {
-      const inputs: FunctionCov[] = [
+      const inputs = [
         {
           functionName: "test",
           isBlockCoverage: true,
@@ -168,7 +161,7 @@ describe("merge", () => {
           ],
         },
       ];
-      const expected: FunctionCov = {
+      const expected = {
         functionName: "test",
         isBlockCoverage: true,
         ranges: [
@@ -176,20 +169,20 @@ describe("merge", () => {
           {startOffset: 1, endOffset: 3, count: 1},
         ],
       };
-      const actual: FunctionCov | undefined = mergeFunctionCovs(inputs);
+      const actual = mergeFunctionCovs(inputs);
       chai.assert.deepEqual(actual, expected);
     });
   });
 
   describe("ranges", () => {
     for (const sourceFile of getSourceFiles()) {
-      const relPath: string = path.relative(RANGES_DIR, sourceFile);
+      const relPath = path.relative(RANGES_DIR, sourceFile);
       describe(relPath, () => {
-        const content: string = fs.readFileSync(sourceFile, {encoding: "UTF-8"});
-        const items: MergeRangeItem[] = JSON.parse(content);
+        const content = fs.readFileSync(sourceFile, {encoding: "UTF-8"});
+        const items  = JSON.parse(content);
         for (const item of items) {
-          const test: () => void = () => {
-            const actual: ProcessCov | undefined = mergeProcessCovs(item.inputs);
+          const test = () => {
+            const actual = mergeProcessCovs(item.inputs);
             chai.assert.deepEqual(actual, item.expected);
           };
           switch (item.status) {
@@ -212,14 +205,12 @@ describe("merge", () => {
 
   describe("benches", () => {
     for (const bench of getBenches()) {
-      const BENCHES_TO_SKIP: Set<string> = new Set();
-      if (process.env.CI === "true") {
-        // Skip very large benchmarks when running continuous integration
-        BENCHES_TO_SKIP.add("node@10.11.0");
-        BENCHES_TO_SKIP.add("npm@6.4.1");
-      }
+      const BENCHES_TO_SKIP = new Set();
+      // T?ODO: figure out why these need to be skipped.
+      BENCHES_TO_SKIP.add("node@10.11.0");
+      BENCHES_TO_SKIP.add("npm@6.4.1");
 
-      const name: string = path.basename(bench);
+      const name = path.basename(bench);
 
       if (BENCHES_TO_SKIP.has(name)) {
         it.skip(`${name} (skipped: too large for CI)`, testBench);
@@ -227,22 +218,22 @@ describe("merge", () => {
         it(name, testBench);
       }
 
-      async function testBench(this: Mocha.Context) {
+      async function testBench() {
         this.timeout(BENCHES_TIMEOUT);
 
-        const inputFileNames: string[] = await fs.promises.readdir(bench);
-        const inputPromises: Promise<ProcessCov>[] = [];
+        const inputFileNames = await fs.promises.readdir(bench);
+        const inputPromises = [];
         for (const inputFileName of inputFileNames) {
-          const resolved: string = path.join(bench, inputFileName);
+          const resolved = path.join(bench, inputFileName);
           inputPromises.push(fs.promises.readFile(resolved).then(buffer => JSON.parse(buffer.toString("UTF-8"))));
         }
-        const inputs: ProcessCov[] = await Promise.all(inputPromises);
-        const expectedPath: string = path.join(BENCHES_DIR, `${name}.json`);
-        const expectedContent: string = await fs.promises.readFile(expectedPath, {encoding: "UTF-8"}) as string;
-        const expected: ProcessCov = JSON.parse(expectedContent);
-        const startTime: number = Date.now();
-        const actual: ProcessCov | undefined = mergeProcessCovs(inputs);
-        const endTime: number = Date.now();
+        const inputs  = await Promise.all(inputPromises);
+        const expectedPath = path.join(BENCHES_DIR, `${name}.json`);
+        const expectedContent = await fs.promises.readFile(expectedPath, {encoding: "UTF-8"});
+        const expected = JSON.parse(expectedContent);
+        const startTime = Date.now();
+        const actual  = mergeProcessCovs(inputs);
+        const endTime = Date.now();
         console.error(`Time (${name}): ${(endTime - startTime) / 1000}`);
         chai.assert.deepEqual(actual, expected);
         console.error(`OK: ${name}`);
@@ -254,11 +245,11 @@ describe("merge", () => {
 function getSourceFiles() {
   return getSourcesFrom(RANGES_DIR);
 
-  function* getSourcesFrom(dir: string): Iterable<string> {
-    const names: string[] = fs.readdirSync(dir);
+  function* getSourcesFrom(dir) {
+    const names = fs.readdirSync(dir);
     for (const name of names) {
-      const resolved: string = path.join(dir, name);
-      const stat: fs.Stats = fs.statSync(resolved);
+      const resolved = path.join(dir, name);
+      const stat = fs.statSync(resolved);
       if (stat.isDirectory()) {
         yield* getSourcesFrom(dir);
       } else {
@@ -268,11 +259,11 @@ function getSourceFiles() {
   }
 }
 
-function* getBenches(): Iterable<string> {
-  const names: string[] = fs.readdirSync(BENCHES_INPUT_DIR);
+function* getBenches() {
+  const names = fs.readdirSync(BENCHES_INPUT_DIR);
   for (const name of names) {
-    const resolved: string = path.join(BENCHES_INPUT_DIR, name);
-    const stat: fs.Stats = fs.statSync(resolved);
+    const resolved = path.join(BENCHES_INPUT_DIR, name);
+    const stat = fs.statSync(resolved);
     if (stat.isDirectory()) {
       yield resolved;
     }

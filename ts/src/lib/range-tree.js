@@ -1,16 +1,14 @@
-import { RangeCov } from "./types";
-
-export class RangeTree {
-  start: number;
-  end: number;
-  delta: number;
-  children: RangeTree[];
+class RangeTree {
+  start;
+  end;
+  delta;
+  children;
 
   constructor(
-    start: number,
-    end: number,
-    delta: number,
-    children: RangeTree[],
+    start,
+    end,
+    delta,
+    children,
   ) {
     this.start = start;
     this.end = end;
@@ -21,19 +19,19 @@ export class RangeTree {
   /**
    * @precodition `ranges` are well-formed and pre-order sorted
    */
-  static fromSortedRanges(ranges: ReadonlyArray<RangeCov>): RangeTree | undefined {
-    let root: RangeTree | undefined;
+  static fromSortedRanges(ranges) {
+    let root;
     // Stack of parent trees and parent counts.
-    const stack: [RangeTree, number][] = [];
+    const stack = [];
     for (const range of ranges) {
-      const node: RangeTree = new RangeTree(range.startOffset, range.endOffset, range.count, []);
+      const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
       if (root === undefined) {
         root = node;
         stack.push([node, range.count]);
         continue;
       }
-      let parent: RangeTree;
-      let parentCount: number;
+      let parent;
+      let parentCount;
       while (true) {
         [parent, parentCount] = stack[stack.length - 1];
         // assert: `top !== undefined` (the ranges are sorted)
@@ -54,15 +52,15 @@ export class RangeTree {
     return root;
   }
 
-  normalize(): void {
-    const children: RangeTree[] = [];
-    let curEnd: number;
-    let head: RangeTree | undefined;
-    const tail: RangeTree[] = [];
+  normalize() {
+    const children = [];
+    let curEnd;
+    let head;
+    const tail = [];
     for (const child of this.children) {
       if (head === undefined) {
         head = child;
-      } else if (child.delta === head.delta && child.start === curEnd!) {
+      } else if (child.delta === head.delta && child.start === curEnd) {
         tail.push(child);
       } else {
         endChain();
@@ -75,7 +73,7 @@ export class RangeTree {
     }
 
     if (children.length === 1) {
-      const child: RangeTree = children[0];
+      const child = children[0];
       if (child.start === this.start && child.end === this.end) {
         this.delta += child.delta;
         this.children = child.children;
@@ -86,19 +84,19 @@ export class RangeTree {
 
     this.children = children;
 
-    function endChain(): void {
+    function endChain() {
       if (tail.length !== 0) {
-        head!.end = tail[tail.length - 1].end;
+        head.end = tail[tail.length - 1].end;
         for (const tailTree of tail) {
           for (const subChild of tailTree.children) {
-            subChild.delta += tailTree.delta - head!.delta;
-            head!.children.push(subChild);
+            subChild.delta += tailTree.delta - head.delta;
+            head.children.push(subChild);
           }
         }
         tail.length = 0;
       }
-      head!.normalize();
-      children.push(head!);
+      head.normalize();
+      children.push(head);
     }
   }
 
@@ -106,13 +104,13 @@ export class RangeTree {
    * @precondition `tree.start < value && value < tree.end`
    * @return RangeTree Right part
    */
-  split(value: number): RangeTree {
-    let leftChildLen: number = this.children.length;
-    let mid: RangeTree | undefined;
+  split(value) {
+    let leftChildLen= this.children.length;
+    let mid;
 
     // TODO(perf): Binary search (check overhead)
-    for (let i: number = 0; i < this.children.length; i++) {
-      const child: RangeTree = this.children[i];
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
       if (child.start < value && value < child.end) {
         mid = child.split(value);
         leftChildLen = i + 1;
@@ -123,12 +121,12 @@ export class RangeTree {
       }
     }
 
-    const rightLen: number = this.children.length - leftChildLen;
-    const rightChildren: RangeTree[] = this.children.splice(leftChildLen, rightLen);
+    const rightLen = this.children.length - leftChildLen;
+    const rightChildren = this.children.splice(leftChildLen, rightLen);
     if (mid !== undefined) {
       rightChildren.unshift(mid);
     }
-    const result: RangeTree = new RangeTree(
+    const result = new RangeTree(
       value,
       this.end,
       this.delta,
@@ -143,18 +141,22 @@ export class RangeTree {
    *
    * The ranges are pre-order sorted.
    */
-  toRanges(): RangeCov[] {
-    const ranges: RangeCov[] = [];
+  toRanges() {
+    const ranges = [];
     // Stack of parent trees and counts.
-    const stack: [RangeTree, number][] = [[this, 0]];
+    const stack = [[this, 0]];
     while (stack.length > 0) {
-      const [cur, parentCount]: [RangeTree, number] = stack.pop()!;
-      const count: number = parentCount + cur.delta;
+      const [cur, parentCount] = stack.pop();
+      const count = parentCount + cur.delta;
       ranges.push({startOffset: cur.start, endOffset: cur.end, count});
-      for (let i: number = cur.children.length - 1; i >= 0; i--) {
+      for (let i = cur.children.length - 1; i >= 0; i--) {
         stack.push([cur.children[i], count]);
       }
     }
     return ranges;
   }
+}
+
+module.exports = {
+  RangeTree
 }

@@ -5,7 +5,6 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "alwaysStrict": true,
-    "charset": "utf8",
     "checkJs": false,
     "declaration": false,
     "disableSizeLimit": false,
@@ -23,7 +22,6 @@
       "es2017",
       "esnext.asynciterable"
     ],
-    "locale": "en-us",
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "lf",
