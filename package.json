@@ -8,8 +8,5 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/demurgos/v8-coverage.git"
-  },
-  "scripts": {
-    "test": "cd ts && npm t"
   }
 }
