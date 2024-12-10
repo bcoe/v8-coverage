@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [assigned, opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+name: ci
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 23]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --engine-strict --prefix js
+      - run: npm test --prefix js
