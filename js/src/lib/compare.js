@@ -40,5 +40,5 @@ function compareRangeCovs(a, b) {
 module.exports = {
   compareScriptCovs,
   compareFunctionCovs,
-  compareRangeCovs
-}
+  compareRangeCovs,
+};

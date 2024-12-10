@@ -71,5 +71,5 @@ module.exports = {
   cloneProcessCov,
   cloneScriptCov,
   cloneFunctionCov,
-  cloneRangeCov
-}
+  cloneRangeCov,
+};

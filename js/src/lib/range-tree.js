@@ -4,12 +4,7 @@ class RangeTree {
   delta;
   children;
 
-  constructor(
-    start,
-    end,
-    delta,
-    children,
-  ) {
+  constructor(start, end, delta, children) {
     this.start = start;
     this.end = end;
     this.delta = delta;
@@ -24,7 +19,12 @@ class RangeTree {
     // Stack of parent trees and parent counts.
     const stack = [];
     for (const range of ranges) {
-      const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
+      const node = new RangeTree(
+        range.startOffset,
+        range.endOffset,
+        range.count,
+        [],
+      );
       if (root === undefined) {
         root = node;
         stack.push([node, range.count]);
@@ -41,7 +41,7 @@ class RangeTree {
           stack.pop();
         }
 
-        if(stack.length === 0) {
+        if (stack.length === 0) {
           break;
         }
       }
@@ -105,7 +105,7 @@ class RangeTree {
    * @return RangeTree Right part
    */
   split(value) {
-    let leftChildLen= this.children.length;
+    let leftChildLen = this.children.length;
     let mid;
 
     // TODO(perf): Binary search (check overhead)
@@ -126,12 +126,7 @@ class RangeTree {
     if (mid !== undefined) {
       rightChildren.unshift(mid);
     }
-    const result = new RangeTree(
-      value,
-      this.end,
-      this.delta,
-      rightChildren,
-    );
+    const result = new RangeTree(value, this.end, this.delta, rightChildren);
     this.end = value;
     return result;
   }
@@ -148,7 +143,7 @@ class RangeTree {
     while (stack.length > 0) {
       const [cur, parentCount] = stack.pop();
       const count = parentCount + cur.delta;
-      ranges.push({startOffset: cur.start, endOffset: cur.end, count});
+      ranges.push({ startOffset: cur.start, endOffset: cur.end, count });
       for (let i = cur.children.length - 1; i >= 0; i--) {
         stack.push([cur.children[i], count]);
       }
@@ -158,5 +153,5 @@ class RangeTree {
 }
 
 module.exports = {
-  RangeTree
-}
+  RangeTree,
+};

@@ -1,5 +1,9 @@
-const { compareFunctionCovs, compareRangeCovs, compareScriptCovs } = require('./compare');
-const { RangeTree } = require('./range-tree');
+const {
+  compareFunctionCovs,
+  compareRangeCovs,
+  compareScriptCovs,
+} = require("./compare");
+const { RangeTree } = require("./range-tree");
 
 /**
  * Normalizes a process coverage.
@@ -70,7 +74,7 @@ function deepNormalizeScriptCov(scriptCov) {
  */
 function normalizeFunctionCov(funcCov) {
   funcCov.ranges.sort(compareRangeCovs);
-  const tree  = RangeTree.fromSortedRanges(funcCov.ranges);
+  const tree = RangeTree.fromSortedRanges(funcCov.ranges);
   normalizeRangeTree(tree);
   funcCov.ranges = tree.toRanges();
 }
@@ -88,5 +92,5 @@ module.exports = {
   normalizeScriptCov,
   deepNormalizeScriptCov,
   normalizeFunctionCov,
-  normalizeRangeTree
-}
+  normalizeRangeTree,
+};

@@ -4,8 +4,8 @@ const {
   normalizeProcessCov,
   normalizeRangeTree,
   normalizeScriptCov,
-} = require('./normalize');
-const { RangeTree } = require('./range-tree');
+} = require("./normalize");
+const { RangeTree } = require("./range-tree");
 
 /**
  * Merges a list of process coverages.
@@ -20,13 +20,13 @@ const { RangeTree } = require('./range-tree');
  */
 function mergeProcessCovs(processCovs) {
   if (processCovs.length === 0) {
-    return {result: []};
+    return { result: [] };
   }
 
   const urlToScripts = new Map();
   for (const processCov of processCovs) {
     for (const scriptCov of processCov.result) {
-      let scriptCovs= urlToScripts.get(scriptCov.url);
+      let scriptCovs = urlToScripts.get(scriptCov.url);
       if (scriptCovs === undefined) {
         scriptCovs = [];
         urlToScripts.set(scriptCov.url, scriptCovs);
@@ -40,7 +40,7 @@ function mergeProcessCovs(processCovs) {
     // assert: `scripts.length > 0`
     result.push(mergeScriptCovs(scripts));
   }
-  const merged = {result};
+  const merged = { result };
 
   normalizeProcessCov(merged);
   return merged;
@@ -77,10 +77,12 @@ function mergeScriptCovs(scriptCovs) {
       const rootRange = stringifyFunctionRootRange(funcCov);
       let funcCovs = rangeToFuncs.get(rootRange);
 
-      if (funcCovs === undefined ||
+      if (
+        funcCovs === undefined ||
         // if the entry in rangeToFuncs is function-level granularity and
         // the new coverage is block-level, prefer block-level.
-        (!funcCovs[0].isBlockCoverage && funcCov.isBlockCoverage)) {
+        (!funcCovs[0].isBlockCoverage && funcCov.isBlockCoverage)
+      ) {
         funcCovs = [];
         rangeToFuncs.set(rootRange, funcCovs);
       } else if (funcCovs[0].isBlockCoverage && !funcCov.isBlockCoverage) {
@@ -92,13 +94,13 @@ function mergeScriptCovs(scriptCovs) {
     }
   }
 
-  const functions  = [];
+  const functions = [];
   for (const funcCovs of rangeToFuncs.values()) {
     // assert: `funcCovs.length > 0`
     functions.push(mergeFunctionCovs(funcCovs));
   }
 
-  const merged = {scriptId, url, functions};
+  const merged = { scriptId, url, functions };
   normalizeScriptCov(merged);
   return merged;
 }
@@ -155,7 +157,7 @@ function mergeFunctionCovs(funcCovs) {
   const ranges = mergedTree.toRanges();
   const isBlockCoverage = !(ranges.length === 1 && ranges[0].count === 0);
 
-  const merged = {functionName, ranges, isBlockCoverage};
+  const merged = { functionName, ranges, isBlockCoverage };
   // assert: `merged` is normalized
   return merged;
 }
@@ -290,17 +292,19 @@ function mergeRangeTreeChildren(parentTrees) {
 
     if (openRange === undefined) {
       let openRangeEnd = event.offset + 1;
-      for (const {parentIndex, tree} of event.trees) {
+      for (const { parentIndex, tree } of event.trees) {
         openRangeEnd = Math.max(openRangeEnd, tree.end);
         insertChild(parentToNested, parentIndex, tree);
       }
       startEventQueue.setPendingOffset(openRangeEnd);
-      openRange = {start: event.offset, end: openRangeEnd};
+      openRange = { start: event.offset, end: openRangeEnd };
     } else {
-      for (const {parentIndex, tree} of event.trees) {
+      for (const { parentIndex, tree } of event.trees) {
         if (tree.end > openRange.end) {
           const right = tree.split(openRange.end);
-          startEventQueue.pushPendingTree(new RangeTreeWithParent(parentIndex, right));
+          startEventQueue.pushPendingTree(
+            new RangeTreeWithParent(parentIndex, right),
+          );
         }
         insertChild(parentToNested, parentIndex, tree);
       }
@@ -326,15 +330,16 @@ function nextChild(openRange, parentToNested) {
   const matchingTrees = [];
 
   for (const nested of parentToNested.values()) {
-    if (nested.length === 1 && nested[0].start === openRange.start && nested[0].end === openRange.end) {
+    if (
+      nested.length === 1 &&
+      nested[0].start === openRange.start &&
+      nested[0].end === openRange.end
+    ) {
       matchingTrees.push(nested[0]);
     } else {
-      matchingTrees.push(new RangeTree(
-        openRange.start,
-        openRange.end,
-        0,
-        nested,
-      ));
+      matchingTrees.push(
+        new RangeTree(openRange.start, openRange.end, 0, nested),
+      );
     }
   }
   parentToNested.clear();
@@ -344,5 +349,5 @@ function nextChild(openRange, parentToNested) {
 module.exports = {
   mergeProcessCovs,
   mergeScriptCovs,
-  mergeFunctionCovs
-}
+  mergeFunctionCovs,
+};

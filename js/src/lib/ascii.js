@@ -7,7 +7,7 @@ function emitForest(trees) {
 function emitForestLines(trees) {
   const colMap = getColMap(trees);
   const header = emitOffsets(colMap);
-  return [header, ...trees.map(tree => emitTree(tree, colMap).join("\n"))];
+  return [header, ...trees.map((tree) => emitTree(tree, colMap).join("\n"))];
 }
 
 function getColMap(trees) {
@@ -15,7 +15,7 @@ function getColMap(trees) {
   for (const tree of trees) {
     const stack = [tree];
     while (stack.length > 0) {
-      const cur  = stack.pop();
+      const cur = stack.pop();
       eventSet.add(cur.start);
       eventSet.add(cur.end);
       for (const child of cur.children) {
@@ -50,7 +50,7 @@ function emitTree(tree, colMap) {
       }
     }
   }
-  return layers.map(layer => emitTreeLayer(layer, colMap));
+  return layers.map((layer) => emitTreeLayer(layer, colMap));
 }
 
 function parseFunctionRanges(text, offsetMap) {
@@ -72,7 +72,7 @@ function parseFunctionRanges(text, offsetMap) {
 function emitTreeLayer(layer, colMap) {
   const line = [];
   let curIdx = 0;
-  for (const {start, end, count} of layer) {
+  for (const { start, end, count } of layer) {
     const startIdx = colMap.get(start);
     const endIdx = colMap.get(end);
     if (startIdx > curIdx) {
@@ -100,12 +100,12 @@ function parseTreeLayer(text, offsetMap) {
     if (startOffset === undefined || endOffset === undefined) {
       throw new Error(`Invalid offsets for: ${JSON.stringify(text)}`);
     }
-    result.push({startOffset, endOffset, count});
+    result.push({ startOffset, endOffset, count });
   }
   return result;
 }
 
-function emitRange(count, len)  {
+function emitRange(count, len) {
   const rangeStart = `[${count.toString(10)}`;
   const rangeEnd = ")";
   const hyphensLen = len - (rangeStart.length + rangeEnd.length);
@@ -137,10 +137,9 @@ function parseOffsets(text) {
   return result;
 }
 
-
 module.exports = {
   emitForest,
   emitForestLines,
   parseFunctionRanges,
-  parseOffsets
+  parseOffsets,
 };
